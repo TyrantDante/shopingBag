@@ -1,0 +1,60 @@
+{
+"msg" : "success",
+"data" : {
+"count" : 3,
+"list" : [
+  {
+    "cartVoList" : [
+       {
+        "quantity" : 1,
+        "isSale" : 1,
+        "realPrice" : "180.00",
+        "selected" : "0",
+        "companyName" : "古欧家具",
+        "imagePath" : "http:\/\/www.smodec.com\/upload\/image\/product\/20141231\/8885533e-6a82-4935-becc-51fd77b4e093.jpg",
+        "productName" : "靠垫",
+        }
+    ],
+    "supplierId" : 441,
+    "companyId" : 35,
+    "supplierName" : "tanxiaohui",
+    "companyName" : "古欧家具"
+    },
+    {
+    "cartVoList" : [
+        {
+        "quantity" : 2,
+        "isSale" : 1,
+        "realPrice" : "1440.00",
+        "selected" : "0",
+        "companyName" : "ximai",
+        "imagePath" : "http:\/\/www.smodec.com\/upload\/image\/product\/20141231\/c99b6c9f-0b37-48df-84f5-98402b32e0c9.jpg",
+        "productName" : "TOTO CW855",
+        }
+        ],
+    "supplierId" : 455,
+    "companyId" : 59,
+    "supplierName" : "zhangty",
+    "companyName" : "ximai"
+    },
+    {
+    "cartVoList" : [
+        {
+        "quantity" : 1,
+        "isSale" : 2,
+        "realPrice" : "360.00",
+        "selected" : "0",
+        "companyName" : "yyyyy",
+        "imagePath" : "http:\/\/www.smodec.com\/upload\/image\/product\/20141212\/7053398c-3fb7-42db-a5da-f8edfb17f4a7.JPG",
+        "productName" : "单人沙发",
+        }
+    ],
+    "supplierId" : 435,
+    "companyId" : 31,
+    "supplierName" : "praise",
+    "companyName" : "yyyyy"
+    }
+  ]
+},
+"code" : 1
+}

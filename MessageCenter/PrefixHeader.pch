@@ -1,0 +1,28 @@
+//
+//  PrefixHeader.pch
+//  MessageCenter
+//
+//  Created by Dante on 15/1/6.
+//  Copyright (c) 2015年 Dante. All rights reserved.
+//
+
+#ifndef MessageCenter_PrefixHeader_pch
+#define MessageCenter_PrefixHeader_pch
+
+/**
+ *  这里自己写两个头文件写进去,一个尺寸,一个颜色和字体的,不要写在这里边,暂时写这里
+ */
+#define FULL_HEIGHT             [[UIScreen mainScreen] bounds].size.height
+#define FULL_WIDTH              [[UIScreen mainScreen] bounds].size.width
+#define NAVBAR_HEIGHT           64
+#define BOTTOM_HEIGHT           49
+#define FONT(s)                 [UIFont systemFontOfSize:s]
+
+
+#define RGBA(r,g,b,a)           [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f alpha:a]
+#define RGB(r,g,b)              RGBA(r,g,b,1)
+#define LINE_OR_FRAME_COLOR     RGB(210, 210, 210)
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#endif
