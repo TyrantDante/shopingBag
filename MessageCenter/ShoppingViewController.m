@@ -3,7 +3,7 @@
 //  MessageCenter
 //
 //  Created by apple on 15/8/26.
-//  Copyright (c) 2015年 Dante. All rights reserved.
+//  Copyright (c) 2015年 小怪兽. All rights reserved.
 //
 
 #import "ShoppingViewController.h"
@@ -13,10 +13,6 @@
 
 @interface ShoppingViewController ()
 <UITableViewDelegate,UITableViewDataSource,ShoppingCarCellDelegate,ShoppingHeaderViewDelegate>
-{
-    ShoppingFooterView *_footerView;
-}
-@property (nonatomic,strong) NSMutableArray *array;
 @property (nonatomic,strong) NSMutableArray *rowArray;
 
 @property (nonatomic,strong) UITableView    *table;
@@ -24,7 +20,6 @@
 @property (nonatomic,strong) UILabel        *totalPriceLabel;
 @property (nonatomic,strong)NSMutableArray *listArray;
 @property (nonatomic,assign) CGFloat totalPrice;
-//@property (nonatomic,assign) NSInteger quantity;
 @end
 
 @implementation ShoppingViewController
@@ -33,8 +28,6 @@
     [super viewDidLoad];
     self.navigationItem.title = @"购物车";
     
-    /*----------------------------假数据------------------------------*/
-    _array = [NSMutableArray array];
     _listArray = [NSMutableArray array];
     
     NSString* path = [[NSBundle mainBundle] pathForResource:@"shopping_json"
@@ -47,18 +40,10 @@
     NSArray *dataArray = [sectionDictionary objectForKey:@"list"];
     for (NSDictionary *dict in dataArray) {
         [dict setValue:@"0" forKey:@"is_Sected"];
+        [dict setValue:@"0.00" forKey:@"price"];
+        [dict setValue:@"0" forKey:@"quantity"];
         [_listArray addObject:dict];
-        NSArray *cartVoListArray = [dict objectForKey:@"cartVoList"];
-        NSMutableDictionary *dataDictionary;
-        for (NSDictionary *cartVoListDict in cartVoListArray) {
-            _rowArray = [NSMutableArray array];
-            dataDictionary = [NSMutableDictionary dictionaryWithDictionary:cartVoListDict];
-            [_rowArray addObject:dataDictionary];
-        }
-       [_array addObject:_rowArray];
     }
-    
-    /*----------------------------假数据------------------------------*/
     [self creatUI];
 }
 #pragma mark------创建表
@@ -77,11 +62,13 @@
 #pragma mark------tableViewDataSource  AND delegete
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return [(NSArray *)[_array objectAtIndex:section]count];
+    NSDictionary *dict = _listArray[section];
+    NSArray *array = [dict objectForKey:@"cartVoList"];
+    return array.count;
 }
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return _array.count;
+    return _listArray.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -93,9 +80,23 @@
         cell.delegate = self;
         //        cell.contentView.backgroundColor = [UIColor redColor];
     }
-    cell.itemData = [_array[indexPath.section] objectAtIndex:indexPath.row];
+    NSDictionary *dict = _listArray[indexPath.section];
+    NSArray *cellDict = [dict objectForKey:@"cartVoList"];
+    cell.itemData = cellDict[indexPath.row];
+//    cell.itemData = [_array[indexPath.section] objectAtIndex:indexPath.row];
+    
+    NSString *isSale = [NSString stringWithFormat:@"%@",[cell.itemData objectForKey:@"isSale"]];
+    if ([isSale isEqualToString:@"2"]) {
+        cell.selectButton.userInteractionEnabled = NO;
+        cell.contentView.alpha = 0.5;
+    }
+    else
+    {
+        cell.contentView.alpha = 1.0f;
+    }
     cell.selectButton.sectionTag = indexPath.section;
-    _allSelectButton.rowTag = indexPath.row;
+    cell.selectButton.rowTag = indexPath.row;
+//    _allSelectButton.sectionTag = indexPath.section;
     [cell reloadData];
     
     return cell;
@@ -114,193 +115,167 @@
 }
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    ShoppingHeaderView *_headerView = [[ShoppingHeaderView alloc] initWithFrame:CGRectMake(0, 0, FULL_WIDTH, 42 * FULL_HEIGHT / 568)];
-    _headerView.sectionData = [_listArray objectAtIndex:section];
-    _headerView.selectButton.sectionTag = section;
-    _headerView.delegate = self;
+    ShoppingHeaderView *headerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:@"Header"];
+    if (!headerView) {
+        headerView = [[ShoppingHeaderView alloc] initWithReuseIdentifier:@"Header"];
+    }
+//    ShoppingHeaderView *headerView = [[ShoppingHeaderView alloc] initWithFrame:CGRectMake(0, 0, FULL_WIDTH, 42 * FULL_HEIGHT / 568)];
+    headerView.sectionData = [_listArray objectAtIndex:section];
+    headerView.selectButton.sectionTag = section;
+    headerView.delegate = self;
     
-    [_headerView reloadData];
-    _headerView.backgroundColor = [UIColor grayColor];
-    return  _headerView;
+    [headerView reloadData];
+    headerView.contentView.backgroundColor = [UIColor grayColor];
+    return  headerView;
 }
 -(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
-    _footerView = [[ShoppingFooterView alloc] initWithFrame:CGRectMake(0, 0, FULL_WIDTH, 44.5 * FULL_HEIGHT / 568)];
-    _footerView.backgroundColor = [UIColor lightGrayColor];
-    return _footerView;
+    ShoppingFooterView *footerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:@"Footer"];
+    if (!footerView) {
+        footerView =[[ShoppingFooterView alloc] initWithReuseIdentifier:@"Footer"];
+    }
+    footerView.footerDict = [_listArray objectAtIndex:section];
+    [footerView reloadData];
+    footerView.contentView.backgroundColor = [UIColor lightGrayColor];
+    return footerView;
 }
-//删除
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    //del
-}
+
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     return @"删除";
-}
-#pragma mark------刷新每个区的总价
--(void)reloadDataSectionWith:(NSInteger)section withRow:(NSInteger)row
-{
-    if (!section) {
-        NSInteger i =0;
-        NSInteger j = 0;
-        for (NSArray *listArray in _array) {
-            j = 0;
-            ShoppingHeaderView *headerView = (ShoppingHeaderView*)[_table headerViewForSection:i];
-            headerView.selectButton.selected = NO;
-            for (__unused NSDictionary *dict in listArray) {
-                NSIndexPath *index = [NSIndexPath indexPathForRow:j inSection:i];
-                ShoppingCarCell *cell = (ShoppingCarCell *)[_table cellForRowAtIndexPath:index];
-                CGFloat price = [[cell.itemData objectForKey:@"realPrice"] floatValue];
-                NSInteger quantity = [[cell.itemData objectForKey:@"quantity"] integerValue];
-                if (cell.selectButton.selected) {
-                    ShoppingFooterView *footerView = (ShoppingFooterView *)[_table footerViewForSection:i];
-                    [footerView totalPriceChange:price* -1 withAmount:quantity *-1];
-                    cell.selectButton.selected = NO;
-                }
-                j++;
-            }
-            i++;
-        }
-        _totalPriceLabel.text = [NSString stringWithFormat:@"￥0.00"];
-        _totalPrice = 0;
-        return;
-    }
-    
-    NSInteger i =0;
-    NSInteger j = 0;
-    CGFloat totalPrice = 0;
-    for (NSArray *listArray in _array) {
-        j = 0;
-        ShoppingHeaderView *headerView = (ShoppingHeaderView*)[_table headerViewForSection:i];
-        headerView.selectButton.selected = YES;
-        for (__unused NSDictionary *dict in listArray) {
-            NSIndexPath *index = [NSIndexPath indexPathForRow:j inSection:i];
-            ShoppingCarCell *cell = (ShoppingCarCell *)[_table cellForRowAtIndexPath:index];
-            CGFloat price = [[cell.itemData objectForKey:@"realPrice"] floatValue];
-            NSInteger quantity = [[cell.itemData objectForKey:@"quantity"] integerValue];
-            totalPrice += price*quantity;
-            if (!cell.selectButton.selected) {
-                ShoppingFooterView *footerView = (ShoppingFooterView *)[_table footerViewForSection:i];
-                [footerView totalPriceChange:price withAmount:quantity];
-                cell.selectButton.selected = YES;
-            }
-            j++;
-        }
-        i++;
-    }
-    _totalPriceLabel.text = [NSString stringWithFormat:@"￥%.2f",totalPrice];
-    _totalPrice = totalPrice;
 }
 
 #pragma mark------全选按钮
 - (void)allSelectAction:(UICellButton *)button
 {
     button.selected = !button.selected;
-//    for (NSMutableDictionary *sectionDictionary in _listArray) {
-//            for (NSArray *array in _array) {
-//                for (NSMutableDictionary *rowDict in array) {
-//                    [rowDict setObject:[[NSNumber alloc] initWithBool:button.selected?YES:NO] forKey:@"selected"];
-//                }
-//            }
-//        [sectionDictionary setObject:[[NSNumber alloc] initWithBool:button.selected?YES:NO] forKey:@"is_Sected"];
-//    }
-    [self reloadDataSectionWith:button.selected withRow:button.rowTag];
+    CGFloat allAmount = 0.00f;
+    NSInteger allQuantity = 0;
+    for (NSMutableDictionary *sectionDictionary in _listArray) {
+        CGFloat sectionAmount = 0.00f;
+        NSInteger sectionQuantity = 0;
+        __weak NSArray *array =(NSArray *)[sectionDictionary objectForKey:@"cartVoList"];
+        for (__weak NSMutableDictionary* dictionCell in array) {
+            NSString *isSale = [NSString stringWithFormat:@"%@",[dictionCell objectForKey:@"isSale"]];
+            if ([isSale isEqualToString:@"1"]) {
+                [dictionCell setObject:[[NSNumber alloc] initWithBool:button.selected?YES:NO] forKey:@"selected"];
+                if (button.selected) {
+                    CGFloat realPrice = [[dictionCell objectForKey:@"realPrice"] floatValue];
+                    NSInteger quantity = [[dictionCell objectForKey:@"quantity"] integerValue];
+                    sectionAmount += realPrice * quantity;
+                    sectionQuantity += quantity;
+                }
+                else
+                {
+                    sectionQuantity = 0;
+                    sectionAmount = 0.00f;
+                }
+            }
+            
+        }
+        [sectionDictionary setValue:[NSString stringWithFormat:@"%.2f",sectionAmount] forKey:@"price"];
+        [sectionDictionary setValue:[NSString stringWithFormat:@"%ld",(long)sectionQuantity] forKey:@"quantity"];
+        [sectionDictionary setObject:[[NSNumber alloc] initWithBool:button.selected?YES:NO] forKey:@"is_Sected"];
+        allAmount += sectionAmount;
+        allQuantity += sectionQuantity;
+    }
+    _totalPriceLabel.text = [NSString stringWithFormat:@"￥%.2f",allAmount];
+    _totalPrice = allAmount;
+    [_table reloadData];
 }
+
 #pragma mark-----ShoppingHeaderViewDelegate
 -(void)carSelectButtonClicked:(NSDictionary *)item WithIndexPathSection:(NSInteger)section WithIndexPathRow:(NSInteger)row
 {
-    NSInteger i =0;
-    for (__unused id dict in (NSArray *)_array[section]) {
-        NSIndexPath *index = [NSIndexPath indexPathForRow:i inSection:section];
-        ShoppingCarCell *cell = (ShoppingCarCell *)[_table cellForRowAtIndexPath:index];
-        CGFloat price = [[cell.itemData objectForKey:@"realPrice"] floatValue];
-        NSInteger quantity = [[cell.itemData objectForKey:@"quantity"] integerValue];
-        if (!cell.selectButton.selected) {
-            ShoppingFooterView *footerView = (ShoppingFooterView *)[_table footerViewForSection:section];
-            [footerView totalPriceChange:price withAmount:quantity];
-            [self changeTotalPrice:price andQuantity:quantity];
-            cell.selectButton.selected = YES;
+    __weak NSMutableDictionary *sectionDict = _listArray[section];
+    BOOL sectionSelected = ![[sectionDict objectForKey:@"is_Sected"] boolValue];
+    __weak NSArray *cellArray = [sectionDict objectForKey:@"cartVoList"];
+    CGFloat sectionAmount = 0.00f;
+    NSInteger sectionQuantity = 0;
+    for (__weak NSMutableDictionary *cellDict in cellArray) {
+        NSString *isSale = [NSString stringWithFormat:@"%@",[cellDict objectForKey:@"isSale"]];
+        if ([isSale isEqualToString:@"1"]) {
+            [cellDict setObject:[[NSNumber alloc] initWithBool:sectionSelected?YES:NO] forKey:@"selected"];
+            if (sectionSelected) {
+                CGFloat realPrice = [[cellDict objectForKey:@"realPrice"] floatValue];
+                NSInteger quantity = [[cellDict objectForKey:@"quantity"] integerValue];
+                sectionAmount += realPrice * quantity;
+                sectionQuantity += quantity;
+            }
+            else
+            {
+                sectionAmount = 0.00f;
+                sectionQuantity = 0;
+            }
         }
-        i++;
     }
-    int j = 0;
-    for (__unused id listArray in _array) {
-        ShoppingHeaderView *headerView  = (ShoppingHeaderView *)[_table headerViewForSection:j];
-        _allSelectButton.selected = YES;
-        if (!headerView.selectButton.selected) {
-            _allSelectButton.selected = NO;
-            return;
+    CGFloat price = [[sectionDict objectForKey:@"price"] floatValue];
+    [sectionDict setValue:[NSString stringWithFormat:@"%.2f",sectionAmount] forKey:@"price"];
+    [sectionDict setValue:[NSString stringWithFormat:@"%ld",(long)sectionQuantity] forKey:@"quantity"];
+    [sectionDict setObject:[[NSNumber alloc] initWithBool:sectionSelected] forKey: @"is_Sected"];
+    _totalPrice += sectionAmount - price;
+    _totalPriceLabel.text = [NSString stringWithFormat:@"￥%.2f",_totalPrice];
+    if (sectionSelected) {
+        BOOL allSelect = YES;
+        for (__weak NSDictionary *sectionDict in _listArray) {
+            BOOL sectSelected = [[sectionDict objectForKey:@"is_Sected"] boolValue];
+            allSelect = allSelect && sectSelected;
         }
-        j++;
+        _allSelectButton.selected = allSelect;
     }
-}
--(void)carDeSelectButtonClicked:(NSDictionary *)item WithIndexPathSection:(NSInteger)section WithIndexPathRow:(NSInteger)row
-{
-    NSInteger i =0;
-    for (__unused id dict in (NSArray *)_array[section]) {
-        NSIndexPath *index = [NSIndexPath indexPathForRow:i inSection:section];
-        ShoppingCarCell *cell = (ShoppingCarCell *)[_table cellForRowAtIndexPath:index];
-        CGFloat price = [[cell.itemData objectForKey:@"realPrice"] floatValue];
-        NSInteger quantity = [[cell.itemData objectForKey:@"quantity"] integerValue];
-        if (cell.selectButton.selected) {
-            ShoppingFooterView *footerView = (ShoppingFooterView *)[_table footerViewForSection:section];
-            [footerView totalPriceChange:price * -1 withAmount:quantity * -1];
-            [self changeTotalPrice:price *-1 andQuantity:quantity *-1];
-            cell.selectButton.selected = NO;
-        }
-        i++;
+    else
+    {
+        _allSelectButton.selected = NO;
     }
-    
-    _allSelectButton.selected = NO;
+    [_table reloadData];
 }
 #pragma mark------ShoppingCarCellDelegate
 -(void)carSelectButtonClicked:(NSDictionary *)item WithSectionIndexPath:(NSInteger)section WithIndexPath:(NSInteger)row
 {
-    //footer refresh
-    __weak ShoppingFooterView *view =(ShoppingFooterView *)[_table footerViewForSection:section];
-    CGFloat price = [[item objectForKey:@"realPrice"] floatValue];
-    NSInteger amount = [[item objectForKey:@"quantity"] integerValue];
-    [view totalPriceChange:price withAmount:amount];
-    [self changeTotalPrice:price andQuantity:amount];
-    int i = 0;
-    for (__unused id dict in _array[section]) {
-        NSIndexPath *index = [NSIndexPath indexPathForItem:i inSection:section];
-        i ++;
-        ShoppingCarCell *cell = (ShoppingCarCell *)[_table cellForRowAtIndexPath:index];
-        __weak ShoppingHeaderView *headerView = (ShoppingHeaderView *)[_table headerViewForSection:section];
-        headerView.selectButton.selected = YES;
-        _allSelectButton.selected = YES;
-        if (!cell.selectButton.selected) {
-            headerView.selectButton.selected = NO;
-            _allSelectButton.selected = NO;
-            return;
+    __weak NSMutableDictionary *sectionDict = _listArray[section];
+    __weak NSArray *cellArray = [sectionDict objectForKey:@"cartVoList"];
+    __weak NSMutableDictionary *cellDict = cellArray[row];
+    
+        BOOL cellSelected = ![[cellDict objectForKey:@"selected"] boolValue];
+        [cellDict setObject:[[NSNumber alloc] initWithBool:cellSelected] forKey:@"selected"];
+        BOOL sectionSelected = YES;
+        CGFloat currentSectionAmount = 0.00f;
+        NSInteger currentSectionQuantity = 0;
+    
+        for (__weak NSMutableDictionary *dictCell in cellArray) {
+            NSString *isSale = [NSString stringWithFormat:@"%@",[dictCell objectForKey:@"isSale"]];
+            if ([isSale isEqualToString:@"1"]) {
+//            NSString *isSale = [cellDict objectForKey:@"isSale"];
+            BOOL selectedCell = [[dictCell objectForKey:@"selected"] boolValue];
+            sectionSelected = sectionSelected && selectedCell;
+            CGFloat realPrice = [[dictCell objectForKey:@"realPrice"] floatValue];
+            NSInteger quantity = [[dictCell objectForKey:@"quantity"] integerValue];
+            if (selectedCell) {
+                currentSectionAmount += realPrice * quantity;
+                currentSectionQuantity += quantity;
+            }
+            }
         }
-    }
-    int j = 0;
-    for (__unused id listArray in _array) {
-        ShoppingHeaderView *headerView  = (ShoppingHeaderView *)[_table headerViewForSection:j];
-        _allSelectButton.selected = YES;
-        if (!headerView.selectButton.selected) {
-            _allSelectButton.selected = NO;
-            return;
+        CGFloat currentSectionPrice = [[sectionDict objectForKey:@"price"] floatValue];
+        [sectionDict setValue:[NSString stringWithFormat:@"%.2f",currentSectionAmount] forKey:@"price"];
+        [sectionDict setValue:[NSString stringWithFormat:@"%ld",currentSectionQuantity] forKey:@"quantity"];
+        [sectionDict setObject:[[NSNumber alloc] initWithBool:sectionSelected] forKey:@"is_Sected" ];
+        _totalPrice += currentSectionAmount - currentSectionPrice;
+        _totalPriceLabel.text = [NSString stringWithFormat:@"￥%.2f",_totalPrice];
+        if (sectionSelected) {
+            for (NSDictionary *dict in _listArray) {
+                BOOL secSelect = [[dict objectForKey:@"is_Sected"] boolValue];
+                sectionSelected = sectionSelected && secSelect;
+            }
+            _allSelectButton.selected = sectionSelected;
         }
-        j++;
-    }
+        else
+        {
+            _allSelectButton.selected = NO;
+        }
+        [_table reloadData];
     
 }
--(void)carDeSelectButtonClicked:(NSDictionary *)item WithSectionIndexPath:(NSInteger)section WithIndexPath:(NSInteger)row
-{
-    __weak ShoppingFooterView *view =(ShoppingFooterView *)[_table footerViewForSection:section];
-    CGFloat price = [[item objectForKey:@"realPrice"] floatValue];
-    NSInteger amount = [[item objectForKey:@"quantity"] integerValue];
-    [view totalPriceChange:price * -1 withAmount:amount *-1];
-    [self changeTotalPrice:price * -1 andQuantity:amount* -1];
-    __weak ShoppingHeaderView *headerView = (ShoppingHeaderView *)[_table headerViewForSection:section];
-    headerView.selectButton.selected = NO;
-    _allSelectButton.selected = NO;
-}
-
 #pragma mark------创建底部View
 - (void)addBottomView
 {
@@ -353,10 +328,5 @@
     [bottomView addSubview:confirmButton];
     
     
-}
--(void)changeTotalPrice:(CGFloat)price andQuantity:(NSInteger)Quantity
-{
-    _totalPrice += price *labs(Quantity);
-    _totalPriceLabel.text = [NSString stringWithFormat:@"￥%.2f",_totalPrice];
 }
 @end

@@ -3,7 +3,7 @@
 //  MessageCenter
 //
 //  Created by apple on 15/8/26.
-//  Copyright (c) 2015年 Dante. All rights reserved.
+//  Copyright (c) 2015年 小怪兽. All rights reserved.
 //
 
 #import "ShoppingFooterView.h"
@@ -58,15 +58,23 @@
     _priceLable.frame = CGRectMake(FULL_WIDTH - priceSize.width - 10, 0, 100, self.frame.size.height);
     CGSize titleSize = [_numberLabel.text boundingRectWithSize:CGSizeMake(200, 14) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:14]} context:nil].size;
     _numberLabel.frame = CGRectMake(_priceLable.frame.origin.x - titleSize.width - 10, 0, titleSize.width, self.frame.size.height);
+    
 }
-
+- (void)reloadData
+{
+    if (self.footerDict) {
+        _priceLable.text = [NSString stringWithFormat:@"¥ %@",[self.footerDict objectForKey:@"price"]];
+        _numberLabel.text =[NSString stringWithFormat:@"共选择%@件",[self.footerDict objectForKey:@"quantity"]];
+    }
+}
 -(void)totalPriceChange:(CGFloat)price withAmount:(NSInteger)amount
 {
-    _totalPrice += price *labs(amount) ;
-    _productAmount += amount;
-    _priceLable.text = [NSString stringWithFormat:@"¥ %f",_totalPrice];
-    _numberLabel.text = [NSString stringWithFormat:@"共选择%ld件",_productAmount];
-    
+//    _totalPrice += price *labs(amount) ;
+//    _productAmount += amount;
+    [self.footerDict setValue:[NSString stringWithFormat:@"%.2f",price] forKey:@"price"];
+    [self.footerDict setValue:[NSString stringWithFormat:@"%ld",amount] forKey:@"quantity"];
+    _priceLable.text = [self.footerDict objectForKey:@"price"];
+    _numberLabel.text = [NSString stringWithFormat:@"共选择%@件",[self.footerDict objectForKey:@"quantity"]];    
 }
 
 @end

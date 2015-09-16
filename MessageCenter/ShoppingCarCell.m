@@ -2,8 +2,8 @@
 //  MessageCell.m
 //  MessageCenter
 //
-//  Created by Dante on 14/12/29.
-//  Copyright (c) 2014年 Dante. All rights reserved.
+//  Created by 小怪兽 on 14/12/29.
+//  Copyright (c) 2014年 小怪兽. All rights reserved.
 //
 //死数据
 #define BD_SHOPPING_CAR_CELL_HEIGHT 70.F
@@ -73,13 +73,10 @@
 
 - (void)reloadData
 {
-    
     if (self.itemData) {
         _selectButton.selected = [[self.itemData objectForKey:@"selected"] boolValue];
         [_headerImageView sd_setImageWithURL:[NSURL URLWithString:[self.itemData objectForKey:@"imagePath"]] placeholderImage:nil];
-        
         _titleLable.text = [self.itemData objectForKey:@"productName"];
-        
         _priceLable.text = [NSString stringWithFormat:@"￥%@",[self.itemData objectForKey:@"realPrice"]];
     }
 }
@@ -87,17 +84,9 @@
 
 - (void)selectAction:(UICellButton *)button
 {
-    button.selected = !button.selected;
-    if (button.selected) {
-        if ([self.delegate respondsToSelector:@selector(carSelectButtonClicked:WithSectionIndexPath:WithIndexPath:)]) {
+    if ([self.delegate respondsToSelector:@selector(carSelectButtonClicked:WithSectionIndexPath:WithIndexPath:)]) {
             [self.delegate carSelectButtonClicked:self.itemData WithSectionIndexPath:button.sectionTag WithIndexPath:button.rowTag];
         }
-    }
-    else
-    {
-        [_delegate carDeSelectButtonClicked:self.itemData WithSectionIndexPath:button.sectionTag WithIndexPath:button.rowTag];
-    }
-   
 }
 
 #pragma mark-------这里固定写死值70
@@ -105,9 +94,6 @@
 {
     return BD_SHOPPING_CAR_CELL_HEIGHT;
 }
-
-
-
 - (void)awakeFromNib {
     
 }

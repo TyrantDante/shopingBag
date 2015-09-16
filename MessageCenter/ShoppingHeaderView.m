@@ -3,7 +3,7 @@
 //  MessageCenter
 //
 //  Created by apple on 15/8/26.
-//  Copyright (c) 2015年 Dante. All rights reserved.
+//  Copyright (c) 2015年 小怪兽. All rights reserved.
 //
 
 #import "ShoppingHeaderView.h"
@@ -42,19 +42,8 @@
 - (void)selectAction:(id)sender
 {
     UICellButton *button = (UICellButton *)sender;
-    button.selected = !button.selected;
-    if (button.selected) {
-        if ([self.delegate respondsToSelector:@selector(carSelectButtonClicked:WithIndexPathSection:WithIndexPathRow:)]) {
-            [self.delegate carSelectButtonClicked:self.sectionData WithIndexPathSection:button.sectionTag WithIndexPathRow:button.rowTag];
-        }
-        
+    if ([self.delegate respondsToSelector:@selector(carSelectButtonClicked:WithIndexPathSection:WithIndexPathRow:)]) {
+        [self.delegate carSelectButtonClicked:self.sectionData WithIndexPathSection:button.sectionTag WithIndexPathRow:button.rowTag];
     }
-    else
-    {
-        if ([self.delegate respondsToSelector:@selector(carDeSelectButtonClicked:WithIndexPathSection:WithIndexPathRow:)]) {
-            [self.delegate carDeSelectButtonClicked:self.sectionData WithIndexPathSection:button.sectionTag WithIndexPathRow:button.rowTag];
-        }
-    }
-    
 }
 @end

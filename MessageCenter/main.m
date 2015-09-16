@@ -2,8 +2,8 @@
 //  main.m
 //  MessageCenter
 //
-//  Created by Dante on 14/12/29.
-//  Copyright (c) 2014年 Dante. All rights reserved.
+//  Created by 小怪兽 on 14/12/29.
+//  Copyright (c) 2014年 小怪兽. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

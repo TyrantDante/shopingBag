@@ -3,7 +3,7 @@
 //  MessageCenter
 //
 //  Created by apple on 15/8/26.
-//  Copyright (c) 2015年 Dante. All rights reserved.
+//  Copyright (c) 2015年 小怪兽. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -14,7 +14,7 @@
 -(void)carSelectButtonClicked:(NSDictionary *)item WithIndexPathSection:(NSInteger)section WithIndexPathRow:(NSInteger)row;
 //非选中
 
--(void)carDeSelectButtonClicked:(NSDictionary *)item WithIndexPathSection:(NSInteger)section WithIndexPathRow:(NSInteger)row;
+//-(void)carDeSelectButtonClicked:(NSDictionary *)item WithIndexPathSection:(NSInteger)section WithIndexPathRow:(NSInteger)row;
 
 @end
 
