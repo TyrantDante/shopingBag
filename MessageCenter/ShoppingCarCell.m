@@ -18,7 +18,6 @@
 @property (nonatomic,strong) UILabel     *titleLable;
 @property (nonatomic,strong) UILabel     *priceLable;
 
-
 @end
 
 
@@ -77,7 +76,7 @@
         _selectButton.selected = [[self.itemData objectForKey:@"selected"] boolValue];
         [_headerImageView sd_setImageWithURL:[NSURL URLWithString:[self.itemData objectForKey:@"imagePath"]] placeholderImage:nil];
         _titleLable.text = [self.itemData objectForKey:@"productName"];
-        _priceLable.text = [NSString stringWithFormat:@"￥%@",[self.itemData objectForKey:@"realPrice"]];
+        _priceLable.text = [NSString stringWithFormat:@"￥%@ * %@",[self.itemData objectForKey:@"realPrice"],[self.itemData objectForKey:@"quantity"]];
     }
 }
 
